@@ -82,6 +82,15 @@ installed_shared_library_module_names := $(sort $(installed_shared_library_modul
 include $(BUILD_SYSTEM)/base_rules.mk
 #######################################
 
+ifeq ($(strip $(WITHOUT_CLANG)),true)
+  LOCAL_CLANG := false
+endif
+
+# Disable features depending on clang.
+ifeq ($(strip $(LOCAL_CLANG)),false)
+  LOCAL_ADDRESS_SANITIZER := false
+endif
+
 # The real dependency will be added after all Android.mks are loaded and the install paths
 # of the shared libraries are determined.
 ifdef LOCAL_INSTALLED_MODULE
@@ -96,10 +105,6 @@ ifeq ($(strip $(LOCAL_ADDRESS_SANITIZER)),true)
   LOCAL_LDFLAGS += $(ADDRESS_SANITIZER_CONFIG_EXTRA_LDFLAGS)
   LOCAL_SHARED_LIBRARIES += $(ADDRESS_SANITIZER_CONFIG_EXTRA_SHARED_LIBRARIES)
   LOCAL_STATIC_LIBRARIES += $(ADDRESS_SANITIZER_CONFIG_EXTRA_STATIC_LIBRARIES)
-endif
-
-ifeq ($(strip $(WITHOUT_CLANG)),true)
-  LOCAL_CLANG :=
 endif
 
 # Add in libcompiler_rt for all regular device builds
