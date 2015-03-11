@@ -99,6 +99,10 @@ $(foreach lib, $(LOCAL_HAL_STATIC_LIBRARIES), \
 b_lib :=
 endif
 
+ifeq ($(strip $(WITHOUT_CLANG)),true)
+  LOCAL_CLANG :=
+  LOCAL_ADDRESS_SANITIZER :=
+else
 ifeq ($(strip $(LOCAL_ADDRESS_SANITIZER)),true)
   LOCAL_CLANG := true
   LOCAL_CFLAGS += $(ADDRESS_SANITIZER_CONFIG_EXTRA_CFLAGS)
@@ -106,9 +110,6 @@ ifeq ($(strip $(LOCAL_ADDRESS_SANITIZER)),true)
   LOCAL_SHARED_LIBRARIES += $(ADDRESS_SANITIZER_CONFIG_EXTRA_SHARED_LIBRARIES)
   LOCAL_STATIC_LIBRARIES += $(ADDRESS_SANITIZER_CONFIG_EXTRA_STATIC_LIBRARIES)
 endif
-
-ifeq ($(strip $(WITHOUT_CLANG)),true)
-  LOCAL_CLANG :=
 endif
 
 # Add in libcompiler_rt for all regular device builds
