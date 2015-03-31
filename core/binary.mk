@@ -105,6 +105,18 @@ my_cxx := $(LOCAL_CXX)
 my_c_includes := $(LOCAL_C_INCLUDES)
 my_generated_sources := $(LOCAL_GENERATED_SOURCES)
 
+ifeq ($(strip $(WITHOUT_$(my_prefix)CLANG)),true)
+  LOCAL_CLANG := false
+endif
+ifeq ($(strip $($(LOCAL_2ND_ARCH_VAR_PREFIX)WITHOUT_$(my_prefix)CLANG)),true)
+  LOCAL_CLANG := false
+endif
+
+# Disable features depending on clang.
+ifeq ($(strip $(LOCAL_CLANG)),false)
+  LOCAL_ADDRESS_SANITIZER := false
+endif
+
 ifndef LOCAL_IS_HOST_MODULE
 my_src_files += $(LOCAL_SRC_FILES_$(TARGET_$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)) $(LOCAL_SRC_FILES_$(my_32_64_bit_suffix))
 my_shared_libraries += $(LOCAL_SHARED_LIBRARIES_$(TARGET_$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)) $(LOCAL_SHARED_LIBRARIES_$(my_32_64_bit_suffix))
@@ -137,10 +149,6 @@ ifeq ($(strip $(LOCAL_ADDRESS_SANITIZER)),true)
   my_ldflags += $(ADDRESS_SANITIZER_CONFIG_EXTRA_LDFLAGS)
   my_shared_libraries += $(ADDRESS_SANITIZER_CONFIG_EXTRA_SHARED_LIBRARIES)
   my_static_libraries += $(ADDRESS_SANITIZER_CONFIG_EXTRA_STATIC_LIBRARIES)
-endif
-
-ifeq ($(strip $($(LOCAL_2ND_ARCH_VAR_PREFIX)WITHOUT_$(my_prefix)CLANG)),true)
-  LOCAL_CLANG :=
 endif
 
 # Add in libcompiler_rt for all regular device builds
