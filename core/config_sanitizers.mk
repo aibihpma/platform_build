@@ -5,7 +5,7 @@
 # Configure SANITIZE_HOST.
 ifdef LOCAL_IS_HOST_MODULE
 ifeq ($(SANITIZE_HOST),true)
-ifneq ($(strip $(LOCAL_CLANG)),false)
+ifneq ($(strip $(my_clang)),false)
 ifneq ($(strip $(LOCAL_ADDRESS_SANITIZER)),false)
     LOCAL_ADDRESS_SANITIZER := true
 endif
