@@ -133,12 +133,26 @@ my_asflags += $(LOCAL_ASFLAGS_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)) $
 my_c_includes += $(LOCAL_C_INCLUDES_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)) $(LOCAL_C_INCLUDES_$(my_32_64_bit_suffix))
 my_generated_sources += $(LOCAL_GENERATED_SOURCES_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)) $(LOCAL_GENERATED_SOURCES_$(my_32_64_bit_suffix))
 
+ifeq ($(strip $(WITHOUT_$(my_prefix)CLANG)),true)
+  LOCAL_CLANG_$(my_32_64_bit_suffix) := false
+  LOCAL_CLANG_$($(my_prefix)ARCH) := false
+  LOCAL_CLANG_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH) := false
+endif
+ifeq ($(strip $($(LOCAL_2ND_ARCH_VAR_PREFIX)WITHOUT_$(my_prefix)CLANG)),true)
+  LOCAL_CLANG_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH) := false
+endif
+
 my_clang := $(LOCAL_CLANG)
 ifdef LOCAL_CLANG_$(my_32_64_bit_suffix)
 my_clang := $(LOCAL_CLANG_$(my_32_64_bit_suffix))
 endif
 ifdef LOCAL_CLANG_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH)
 my_clang := $(LOCAL_CLANG_$($(my_prefix)$(LOCAL_2ND_ARCH_VAR_PREFIX)ARCH))
+endif
+
+# Disable features depending on clang.
+ifeq ($(strip $(my_clang)),false)
+  LOCAL_ADDRESS_SANITIZER := false
 endif
 
 # arch-specific static libraries go first so that generic ones can depend on them
@@ -171,10 +185,6 @@ ifeq ($(strip $(LOCAL_ADDRESS_SANITIZER)),true)
   my_ldflags += $(ADDRESS_SANITIZER_CONFIG_EXTRA_LDFLAGS)
   my_shared_libraries += $(ADDRESS_SANITIZER_CONFIG_EXTRA_SHARED_LIBRARIES)
   my_static_libraries += $(ADDRESS_SANITIZER_CONFIG_EXTRA_STATIC_LIBRARIES)
-endif
-
-ifeq ($(strip $($(LOCAL_2ND_ARCH_VAR_PREFIX)WITHOUT_$(my_prefix)CLANG)),true)
-  my_clang :=
 endif
 
 # Add in libcompiler_rt for all regular device builds
